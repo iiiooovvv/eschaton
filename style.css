@@ -1,0 +1,1119 @@
+/* ─── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure [hidden] beats any author display declarations */
+[hidden] { display: none !important; }
+
+/* ─── Tokens ──────────────────────────────────────────────────────────────── */
+:root {
+  /* Warm palette */
+  --black:          #0d0906;
+  --white:          #f5ead6;
+  --red:            #e82030;
+  --green:          #28c87a;
+  --blue:           #6068e8;
+  --grey:           #a89078;
+
+  /* Glass material — warm-tinted */
+  --glass-bg:       rgba(22, 16, 10, 0.90);
+  --glass-border:   rgba(255, 210, 160, 0.08);
+  --glass-shine:    rgba(255, 220, 180, 0.05);
+  --glass-blur:     blur(28px);
+
+  /* Shadows */
+  --shadow-deep:    0 12px 40px rgba(0,0,0,0.65), 0 3px 10px rgba(0,0,0,0.45);
+  --shadow-lift:    0 2px 10px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-inset:   inset 0 1px 0 var(--glass-shine), inset 0 -1px 0 rgba(0,0,0,0.35);
+  --shadow-press:   inset 0 2px 6px rgba(0,0,0,0.55);
+
+  /* Structure */
+  --slab:           1px solid rgba(255, 210, 160, 0.14);
+  --gap:            8px;
+  --radius:         14px;
+
+  /* Type — Arial for everything */
+  --font: Arial, 'Helvetica Neue', sans-serif;
+
+  --t: 90ms linear;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+html {
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--black);
+  background-image:
+    radial-gradient(ellipse 80% 55% at 10% 0%,   rgba(45, 25, 10, 0.90) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 55% at 90% 100%,  rgba(20, 15, 40, 0.70) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,   rgba(18, 12, 6,  0.50) 0%, transparent 100%);
+  color: var(--white);
+  font-family: var(--font);
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 1rem 5rem;
+}
+
+/* ─── Page ────────────────────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 660px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ─── Page Section ────────────────────────────────────────────────────────── */
+.page-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ─── Eyebrow ─────────────────────────────────────────────────────────────── */
+.eyebrow {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 0.625rem;
+}
+
+/* ─── Scene Nav  ──────────────────────────────────────── BRUTALIST SLAB ─── */
+.scene-nav {
+  display: flex;
+  border: var(--slab);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.scene-btn {
+  flex: 1;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grey);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: none;
+  border-right: 1px solid var(--glass-border);
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  transition: color var(--t), background var(--t);
+  box-shadow: var(--shadow-inset);
+}
+
+.scene-btn:last-child { border-right: none; }
+
+.scene-btn:hover {
+  color: var(--white);
+  background: rgba(255, 200, 140, 0.055);
+}
+
+/* Active: flat fill — stark */
+.scene-btn.active {
+  color: #000;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  box-shadow: var(--shadow-press), 0 0 20px rgba(40, 200, 122, 0.2);
+  background: var(--green);
+}
+
+/* Obfuscation — red */
+.scene-btn--obfuscation              { color: rgba(232, 32, 48, 0.55); }
+.scene-btn--obfuscation:hover        { color: var(--red); background: rgba(232, 32, 48, 0.07); }
+.scene-btn--obfuscation.active       { background: var(--red); color: #fff; box-shadow: var(--shadow-press), 0 0 22px rgba(232,32,48,0.25); }
+
+/* ─── Composer  ─────────────────────────────────────────────────────────── */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 0;
+}
+
+/* ─── Thread Status ───────────────────────────────────────────────────────── */
+.thread-status {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--grey);
+  line-height: 1.5;
+}
+
+.thread-status[data-mode="new"]     { color: var(--green); font-weight: 600; }
+.thread-status[data-mode="editing"] { color: var(--red); font-style: italic; }
+.thread-status[data-mode="active"]  { color: rgba(200, 175, 148, 0.9); }
+
+/* ─── Composer Meta Grid ──────────────────────────────────────────────────── */
+.composer-fields { display: flex; flex-direction: column; gap: 0.875rem; }
+
+.composer-meta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem 2rem;
+}
+
+@media (max-width: 420px) {
+  .composer-meta-row { grid-template-columns: 1fr; }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-label {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.95);
+}
+
+/* Inputs: recessed well */
+.meta-input {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(255, 200, 140, 0.12);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  width: 100%;
+  transition: border-color var(--t), background var(--t);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.38), inset 0 1px 2px rgba(0,0,0,0.25);
+}
+
+.meta-input::placeholder { color: rgba(200, 175, 145, 0.45); }
+.meta-input:focus {
+  border-color: rgba(255, 210, 160, 0.4);
+  background: rgba(0, 0, 0, 0.38);
+}
+
+/* Select */
+.figure-select {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(255, 200, 140, 0.12);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--t);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.38), inset 0 1px 2px rgba(0,0,0,0.25);
+}
+
+.figure-select:focus {
+  border-color: rgba(255, 210, 160, 0.4);
+}
+
+.figure-select option { background: #130e08; color: var(--white); }
+
+.figure-def {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.55;
+  color: var(--green);
+  margin-top: 0.3rem;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 130ms ease;
+}
+
+.field-group:hover .figure-def,
+.field-group:focus-within .figure-def {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ─── Textarea ────────────────────────────────── DEEP RECESSED WELL ─── */
+.entry-textarea {
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.42);
+  border: var(--slab);
+  border-left: 4px solid rgba(255, 200, 140, 0.22);
+  border-radius: 10px;
+  padding: 1.125rem 1.25rem;
+  resize: none;
+  width: 100%;
+  outline: none;
+  min-height: 160px;
+  transition: border-color var(--t), border-left-color var(--t);
+  box-shadow:
+    inset 0 6px 20px rgba(0, 0, 0, 0.5),
+    inset 0 2px 6px  rgba(0, 0, 0, 0.3),
+    inset 0 1px 0    rgba(255, 200, 140, 0.03);
+}
+
+.entry-textarea::placeholder { color: rgba(200, 175, 145, 0.45); }
+
+.entry-textarea:focus {
+  border-color: rgba(255, 200, 140, 0.25);
+  border-left-color: var(--white);
+}
+
+body.scene--portent     .entry-textarea:focus { border-left-color: var(--green); }
+body.scene--obfuscation .entry-textarea:focus { border-left-color: var(--red); }
+
+/* ─── Composer Footer ─────────────────────────────────────────────────────── */
+.composer-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+/* Save: skeuomorphic press button */
+.save-btn {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--white);
+  border: 2px solid var(--white);
+  border-radius: 8px;
+  padding: 0.625rem 1.625rem;
+  cursor: pointer;
+  transition: background var(--t), color var(--t), box-shadow var(--t), transform var(--t);
+  box-shadow:
+    var(--shadow-lift),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+.save-btn:hover {
+  background: var(--black);
+  color: var(--white);
+  box-shadow: var(--shadow-deep);
+}
+
+.save-btn:active {
+  transform: scale(0.93) translateY(1px);
+  box-shadow: var(--shadow-press);
+}
+
+.save-btn:disabled { opacity: 0.28; cursor: default; }
+
+/* Action buttons */
+.action-btn {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey);
+  background: rgba(255, 200, 140, 0.04);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color var(--t), border-color var(--t), background var(--t);
+  box-shadow: var(--shadow-lift), var(--shadow-inset);
+}
+
+.action-btn:hover {
+  color: var(--white);
+  border-color: rgba(255, 210, 160, 0.25);
+  background: rgba(255, 200, 140, 0.07);
+}
+
+.action-btn svg { flex-shrink: 0; }
+
+.composer-word-count {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(190, 165, 135, 0.8);
+  text-align: right;
+  display: block;
+}
+
+/* ─── Timeline Section ───────────────────────────────────────────────────── */
+.tl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0;
+}
+
+/* ─── Timeline Header ─────────────────────────────────────────────────────── */
+.tl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tl-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.tl-header-left .eyebrow { margin: 0; }
+
+.tl-total-words {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(190, 165, 135, 0.8);
+}
+
+.tl-tools {
+  display: flex;
+  gap: 0.375rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+label.action-btn { cursor: pointer; }
+
+/* ─── Timeline Container ──────────────────────────────────────────────────── */
+.tl-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.tl-empty {
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  color: rgba(190, 165, 135, 0.75);
+  padding: 0.5rem 0;
+}
+
+.tl-thread { display: flex; flex-direction: column; }
+
+.tl-thread-meta {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 148, 0.55);
+  padding: 0 0 0.875rem 2.5rem;
+}
+
+/* ─── Timeline Entries ────────────────────────────────────────────────────── */
+.tl-entry {
+  position: relative;
+  padding: 1.375rem 0 1.375rem 2.5rem;
+  border-bottom: 1px solid rgba(255, 200, 140, 0.06);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background var(--t);
+}
+
+.tl-entry:hover              { background: rgba(255, 200, 140, 0.025); }
+.tl-entry:active             { cursor: grabbing; }
+.tl-entry.dragging           { opacity: 0.22; }
+.tl-entry.drag-over-top      { box-shadow: 0 -2px 0 0 rgba(245, 234, 214, 0.6); }
+.tl-entry.drag-over-bottom   { box-shadow:  0 2px 0 0 rgba(245, 234, 214, 0.6); }
+.tl-entry:last-child         { border-bottom: none; }
+
+/* Scene dot — glowing LED */
+.tl-entry::before {
+  content: '';
+  position: absolute;
+  left: 0.625rem;
+  top: 1.8rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 200, 140, 0.15);
+  border: 1px solid rgba(255, 200, 140, 0.12);
+}
+
+.tl-entry[data-scene="cliffhanger"]::before {
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
+}
+.tl-entry[data-scene="portent"]::before {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 7px rgba(40, 200, 122, 0.6), 0 0 14px rgba(40, 200, 122, 0.22);
+}
+.tl-entry[data-scene="obfuscation"]::before {
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
+}
+
+/* Connector line */
+.tl-entry:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0.875rem;
+  top: calc(1.8rem + 8px);
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(255, 200, 140, 0.1), transparent);
+}
+
+/* UR ESCHATON dot — larger and always red, regardless of stored sceneType */
+.tl-entry--climax::before {
+  width: 9px;
+  height: 9px;
+  left: 0.5375rem;
+  top: 1.725rem;
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
+}
+
+/* ─── Entry Meta Row ──────────────────────────────────────────────────────── */
+.tl-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.375rem;
+}
+
+.tl-pos {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(245, 234, 214, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-entry--climax .tl-pos { color: var(--red); font-weight: 800; }
+
+/* Scene label sits in the meta row alongside the position chip */
+.tl-scene {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 234, 214, 0.45);
+}
+
+.tl-entry[data-scene="cliffhanger"] .tl-scene { color: rgba(232, 80,  90,  0.95); }
+.tl-entry[data-scene="portent"]     .tl-scene { color: rgba(40,  200, 122, 0.92); }
+.tl-entry[data-scene="obfuscation"] .tl-scene { color: rgba(232, 80,  90,  0.95); }
+/* UR ESCHATON label — always red, overrides per-scene colour above */
+.tl-entry--climax .tl-scene { color: rgba(232, 80, 90, 0.95); }
+
+.tl-meta-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tl-wordcount {
+  font-family: var(--font);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(200, 175, 148, 0.6);
+  text-transform: uppercase;
+}
+
+/* ─── Entry Detail Row ────────────────────────────────────────────────────── */
+.tl-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-bottom: 0.625rem;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.tl-detail { color: rgba(245, 234, 214, 0.5); }
+
+.tl-detail + .tl-detail::before {
+  content: ' · ';
+  color: rgba(245, 234, 214, 0.28);
+  white-space: pre;
+}
+
+.tl-detail--subject { color: rgba(245, 234, 214, 0.88); }
+/* Figure sits in the meta row — inherits tl-meta font, only colour overridden */
+.tl-detail--figure {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 185, 50, 0.9);
+}
+
+/* ─── Entry Text ──────────────────────────────────────────────────────────── */
+.tl-text {
+  font-family: var(--font);
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.88;
+  color: rgba(245, 234, 214, 0.90);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.tl-entry--climax .tl-text {
+  color: var(--white);
+  font-weight: 400;
+}
+
+/* ─── Edit Button ─────────────────────────────────────────────────────────── */
+.edit-btn {
+  font-family: var(--font);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.4);
+  background: rgba(255, 200, 140, 0.03);
+  border: 1px solid rgba(255, 200, 140, 0.08);
+  border-radius: 5px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--t), border-color var(--t), background var(--t);
+  box-shadow: inset 0 1px 0 rgba(255, 200, 140, 0.04);
+}
+
+.edit-btn:hover {
+  color: var(--white);
+  border-color: rgba(255, 210, 160, 0.3);
+  background: rgba(255, 200, 140, 0.07);
+}
+
+.tl-entry--editing          { background: rgba(232, 32, 48, 0.04); }
+.tl-entry--editing::before  { background: var(--red); border-color: var(--red); }
+
+/* ─── Reorder Buttons ─────────────────────────────────────────────────────── */
+.tl-reorder { display: flex; gap: 0.25rem; }
+
+.reorder-btn {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  color: rgba(200, 175, 145, 0.35);
+  background: rgba(255, 200, 140, 0.025);
+  border: 1px solid rgba(255, 200, 140, 0.08);
+  border-radius: 5px;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--t), border-color var(--t);
+  box-shadow: inset 0 1px 0 rgba(255, 200, 140, 0.04);
+}
+
+.reorder-btn:hover:not(:disabled) {
+  color: var(--white);
+  border-color: rgba(255, 210, 160, 0.3);
+}
+
+.reorder-btn:disabled { opacity: 0.14; cursor: default; }
+
+/* ─── Score HUD ───────────────────── fixed corner: words + entries ─── */
+.score-hud {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  pointer-events: none;
+  user-select: none;
+  z-index: 100;
+}
+
+.score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1.375rem;
+  justify-content: flex-end;
+}
+
+.score-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.score-stat-value {
+  font-family: var(--font);
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: rgba(245, 234, 214, 0.72);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+}
+
+.score-stat-label {
+  font-family: var(--font);
+  font-size: 0.44rem;
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.55);
+  line-height: 1;
+}
+
+/* ─── SFX Toggle ──────────────────────────────── mute button, same corner ─── */
+.sfx-toggle {
+  position: fixed;
+  top: 4.5rem;
+  right: 1.5rem;
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.28);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  text-align: right;
+  transition: color var(--t);
+  z-index: 100;
+  user-select: none;
+}
+
+.sfx-toggle:hover { color: rgba(200, 175, 145, 0.65); }
+
+.sfx-toggle[data-muted="true"] {
+  color: rgba(200, 175, 145, 0.14);
+  text-decoration: line-through;
+}
+
+.score-bump {
+  animation: score-bump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes score-bump {
+  0%   { transform: scale(1);    color: rgba(245, 234, 214, 0.72); }
+  38%  { transform: scale(1.28); color: var(--green); }
+  100% { transform: scale(1);    color: rgba(245, 234, 214, 0.72); }
+}
+
+/* ─── Points Toast ─────────────────────────────── floats from save btn ─── */
+.pts-toast {
+  position: fixed;
+  transform: translateX(-50%);
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  text-shadow: 0 0 18px rgba(40, 200, 122, 0.65);
+  pointer-events: none;
+  z-index: 1000;
+  animation: pts-fly 0.92s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pts-fly {
+  0%   { opacity: 0;  transform: translateX(-50%) translateY(0.25rem)  scale(0.72); }
+  16%  { opacity: 1;  transform: translateX(-50%) translateY(-0.5rem)  scale(1.12); }
+  100% { opacity: 0;  transform: translateX(-50%) translateY(-3.25rem) scale(0.9);  }
+}
+
+/* ─── Milestone Toast ──────────────────────────── slides in from top ─── */
+.milestone-toast {
+  position: fixed;
+  top: 1.375rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-0.875rem);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(40, 200, 122, 0.28);
+  border-radius: 100px;
+  padding: 0.625rem 2rem;
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  opacity: 0;
+  transition:
+    opacity  0.28s ease,
+    transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 999;
+  box-shadow: 0 0 32px rgba(40, 200, 122, 0.14), var(--shadow-deep);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.milestone-toast--show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ─── Save Button Spring ───────────────────────────────────────────────── */
+@keyframes btn-pop {
+  0%   { transform: scale(0.93) translateY(1px);  }
+  52%  { transform: scale(1.07) translateY(-2px); }
+  78%  { transform: scale(0.98) translateY(0);    }
+  100% { transform: scale(1.00) translateY(0);    }
+}
+
+.save-btn.pop {
+  animation: btn-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ─── Eschaton Reference ─────────────── always-visible T-0 block in composer ─ */
+.eschaton-ref {
+  padding: 0;
+}
+
+.eschaton-ref-label {
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(232, 180, 40, 0.65);
+  margin-bottom: 0.5rem;
+}
+
+.eschaton-ref-text {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgba(245, 234, 214, 0.55);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+  max-height: 7rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* ─── Drill Reference ──────────────────── parent entry block in composer ──── */
+.drill-ref {
+  padding: 0;
+}
+
+.drill-ref-label {
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(130, 140, 240, 0.65);
+  margin-bottom: 0.5rem;
+}
+
+.drill-ref-text {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgba(245, 234, 214, 0.55);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+  max-height: 7rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* ─── Thread Status — drill mode ─────────────────────────────────────────── */
+.thread-status[data-mode="drill"] { color: rgba(130, 140, 240, 0.85); }
+
+/* ─── Surface Button ──────────────────── ← Up in composer footer ─────── */
+.surface-btn {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(130, 140, 240, 0.75);
+  background: rgba(96, 104, 232, 0.07);
+  border: 1px solid rgba(96, 104, 232, 0.22);
+  border-radius: 7px;
+  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t), background var(--t);
+  box-shadow: var(--shadow-lift);
+}
+
+.surface-btn:hover {
+  color: var(--blue);
+  border-color: rgba(96, 104, 232, 0.48);
+  background: rgba(96, 104, 232, 0.12);
+}
+
+/* ─── Drill Button ─────────────────────── on each timeline entry ──────── */
+.drill-btn {
+  font-family: var(--font);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(96, 104, 232, 0.4);
+  background: rgba(96, 104, 232, 0.04);
+  border: 1px solid rgba(96, 104, 232, 0.10);
+  border-radius: 5px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--t), border-color var(--t), background var(--t);
+  box-shadow: inset 0 1px 0 rgba(96, 104, 232, 0.04);
+}
+
+.drill-btn:hover {
+  color: var(--blue);
+  border-color: rgba(96, 104, 232, 0.35);
+  background: rgba(96, 104, 232, 0.09);
+}
+
+/* ─── Collapse Toggle ──────────────────── on entries with children ─────── */
+.collapse-btn {
+  font-size: 0.5rem;
+  color: rgba(200, 175, 145, 0.3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color var(--t);
+}
+
+.collapse-btn:hover { color: rgba(200, 175, 145, 0.75); }
+
+/* ─── Sub-thread Container ─────────────── indented children block ──────── */
+.tl-subthread {
+  position: relative;
+  margin-left: 2rem;
+  border-left: 1px solid rgba(96, 104, 232, 0.14);
+  padding-left: 0.875rem;
+}
+
+/* Deeper nesting gets a slightly fainter border */
+.tl-subthread .tl-subthread {
+  margin-left: 1.5rem;
+  border-left-color: rgba(96, 104, 232, 0.08);
+}
+
+/* ─── Page Toggle ────────────────────────────────────────────────────────── */
+.page-toggle {
+  display: flex;
+  border: var(--slab);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.page-toggle-btn {
+  flex: 1;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grey);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: none;
+  border-right: 1px solid var(--glass-border);
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  transition: color var(--t), background var(--t);
+  box-shadow: var(--shadow-inset);
+}
+
+.page-toggle-btn:last-child { border-right: none; }
+
+.page-toggle-btn:hover {
+  color: var(--white);
+  background: rgba(255, 200, 140, 0.055);
+}
+
+.page-toggle-btn.active {
+  color: #000;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  background: var(--white);
+  box-shadow: var(--shadow-press);
+}
+
+/* ─── Entry Context Blocks ────────────────────── prev/next around composer ─── */
+.entry-context { position: relative; }
+
+.entry-context--before {
+  padding-bottom: 0.5rem;
+}
+
+.entry-context--after {
+  padding-top: 0.5rem;
+}
+
+.ctx-entry {
+  cursor: pointer;
+  padding: 0.625rem 0;
+  transition: opacity var(--t);
+}
+
+.ctx-entry:hover { opacity: 0.75; }
+
+.ctx-direction {
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.28);
+  margin-bottom: 0.35rem;
+}
+
+.ctx-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.ctx-pos {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245, 234, 214, 0.42);
+}
+
+.ctx-scene {
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 234, 214, 0.30);
+}
+
+.ctx-entry[data-scene="portent"]     .ctx-scene { color: rgba(40, 200, 122, 0.60); }
+.ctx-entry[data-scene="obfuscation"] .ctx-scene { color: rgba(232, 32, 48, 0.60); }
+
+.ctx-subject {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 234, 214, 0.50);
+}
+
+.ctx-figure {
+  font-family: var(--font);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 185, 50, 0.45);
+}
+
+.ctx-text {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: rgba(245, 234, 214, 0.38);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── New Entry Drag Chip ─────────────────────── in timeline toolbar ─── */
+.new-entry-chip {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(96, 104, 232, 0.7);
+  background: rgba(96, 104, 232, 0.05);
+  border: 1px dashed rgba(96, 104, 232, 0.28);
+  border-radius: 7px;
+  padding: 0.5rem 0.875rem;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  transition: color var(--t), border-color var(--t), background var(--t);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.new-entry-chip:hover {
+  color: var(--blue);
+  border-color: rgba(96, 104, 232, 0.50);
+  background: rgba(96, 104, 232, 0.10);
+}
+
+.new-entry-chip:active { cursor: grabbing; }
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+footer {
+  padding: 1.375rem 0 0;
+  border-top: var(--slab);
+}
+
+footer p {
+  font-family: var(--font);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(200, 175, 145, 0.25);
+}

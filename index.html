@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Narrator — Prompt Engine</title>
+  <link rel="stylesheet" href="style.css?v=13">
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- Score HUD — fixed corner, words + entries displayed separately -->
+    <div class="score-hud" aria-hidden="true">
+      <div class="score-row">
+        <div class="score-stat">
+          <span class="score-stat-value" id="score-words">0</span>
+          <span class="score-stat-label">words</span>
+        </div>
+        <div class="score-stat">
+          <span class="score-stat-value" id="score-entries">0</span>
+          <span class="score-stat-label">entries</span>
+        </div>
+      </div>
+    </div>
+    <button class="sfx-toggle" id="sfx-toggle" aria-label="Toggle sound effects">SFX</button>
+
+    <!-- Page toggle -->
+    <nav class="page-toggle" aria-label="Switch view">
+      <button class="page-toggle-btn active" data-page="entry">Entry</button>
+      <button class="page-toggle-btn" data-page="timeline">Timeline</button>
+    </nav>
+
+    <!-- ─── Entry Page ──────────────────────────────────────────────────── -->
+    <div id="page-entry" class="page-section">
+
+      <nav class="scene-nav" aria-label="Scene types">
+        <button class="scene-btn" data-scene="portent">Portent</button>
+        <button class="scene-btn scene-btn--obfuscation" data-scene="obfuscation">Obfuscation</button>
+      </nav>
+
+      <!-- Context: entry before (story-earlier) -->
+      <div id="entry-prev" class="entry-context entry-context--before" hidden></div>
+
+      <main>
+        <!-- ─── Entry Composer ─────────────────────────────── -->
+        <section class="composer" id="composer" aria-label="Write this scene">
+          <div class="composer-fields">
+            <div class="composer-meta-row">
+              <div class="field-group">
+                <label class="field-label" for="subject-input">Subject</label>
+                <input type="text" id="subject-input" class="meta-input" placeholder="Who or what" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="figure-select">Rhetorical Figure</label>
+                <select class="figure-select" id="figure-select">
+                  <option value="">— none —</option>
+                  <option value="Parallelism">Parallelism</option>
+                  <option value="Isocolon">Isocolon</option>
+                  <option value="Tricolon">Tricolon</option>
+                  <option value="Antithesis">Antithesis</option>
+                  <option value="Chiasmus">Chiasmus</option>
+                  <option value="Asyndeton">Asyndeton</option>
+                  <option value="Polysyndeton">Polysyndeton</option>
+                  <option value="Anaphora">Anaphora</option>
+                  <option value="Epistrophe">Epistrophe</option>
+                  <option value="Symploce">Symploce</option>
+                  <option value="Anadiplosis">Anadiplosis</option>
+                  <option value="Ellipsis">Ellipsis</option>
+                  <option value="Zeugma">Zeugma</option>
+                </select>
+                <div class="figure-def" id="figure-def"></div>
+              </div>
+            </div>
+          </div>
+          <textarea
+            id="entry-text"
+            class="entry-textarea"
+            placeholder="Write the scene..."
+            rows="6"
+            aria-label="Scene text"
+          ></textarea>
+          <span id="composer-word-count" class="composer-word-count">0 words</span>
+          <p class="thread-status" id="thread-status"></p>
+          <div class="composer-footer">
+            <button class="surface-btn" id="surface-btn" hidden aria-label="Return to parent thread">← Up</button>
+            <button class="save-btn" id="save-btn">Save Entry</button>
+          </div>
+          <!-- After: entry immediately after this one at the same level -->
+          <div id="entry-next" class="entry-context entry-context--after" hidden></div>
+          <!-- Drill reference: shows the parent entry when drilling into a sub-thread -->
+          <div class="drill-ref" id="drill-ref" hidden>
+            <p class="drill-ref-label">Parent Entry</p>
+            <p class="drill-ref-text" id="drill-ref-text"></p>
+          </div>
+          <!-- Eschaton: always-visible T-0 reference below the save button -->
+          <div class="eschaton-ref" id="eschaton-ref" hidden>
+            <p class="eschaton-ref-label">Eschaton</p>
+            <p class="eschaton-ref-text" id="eschaton-ref-text"></p>
+          </div>
+        </section>
+      </main>
+
+    </div>
+
+    <!-- ─── Timeline Page ───────────────────────────────────────────────── -->
+    <div id="page-timeline" class="page-section" hidden>
+
+      <section class="tl-section" id="tl-section" aria-label="Story timeline">
+        <div class="tl-header">
+          <div class="tl-header-left">
+            <p class="eyebrow">Story</p>
+            <span id="tl-total-words" class="tl-total-words"></span>
+          </div>
+          <div class="tl-tools">
+            <div class="new-entry-chip" draggable="true" id="new-entry-drag" title="Drag to insert a new entry at a specific position" hidden>
+              ＋ New Entry
+            </div>
+            <button class="action-btn" id="export-btn" aria-label="Export story as JSON file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export
+            </button>
+            <button class="action-btn" id="export-md-btn" aria-label="Export story as Markdown">Export MD</button>
+            <button class="action-btn" id="export-clear-btn" aria-label="Export story then erase all entries">Export &amp; Erase</button>
+            <!-- label triggers the hidden file input — a standard pattern -->
+            <label class="action-btn" id="import-label" for="import-input" role="button" tabindex="0" aria-label="Import story from JSON file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 5 17 10"/>
+                <line x1="12" y1="5" x2="12" y2="17"/>
+              </svg>
+              Import
+            </label>
+            <input type="file" id="import-input" accept=".json" hidden>
+          </div>
+        </div>
+
+        <div id="tl-container" class="tl-container"></div>
+      </section>
+
+    </div>
+
+    <footer>
+      <p>Narrator</p>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
