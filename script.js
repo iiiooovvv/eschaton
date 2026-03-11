@@ -132,7 +132,7 @@ const _collapsedEntries = new Set()
 let draggedEntryId = null
 
 // Page state
-let currentPage          = 'entry'
+let currentPage          = 'timeline'
 let draggingNewEntry     = false
 let pendingInsertPosition = null  // { targetId, insertBefore } | null
 
@@ -711,13 +711,16 @@ function renderTimeline() {
 
   updateNewEntryChip()
 
-  // Update total word count in the section header (all entries, including sub-threads)
-  const totalWords = entries.reduce((sum, e) => sum + countWords(e.text), 0)
-  const totalEl = document.getElementById('tl-total-words')
-  if (totalEl) totalEl.textContent = totalWords > 0 ? `${totalWords.toLocaleString()} words` : ''
-
   if (!entries.length) {
-    container.innerHTML = '<p class="tl-empty">No entries yet. Write your first scene above.</p>'
+    container.innerHTML = `
+      <div class="tl-empty-state">
+        <p class="tl-empty-state-label">No entries yet</p>
+        <button class="tl-new-eschaton-btn" id="tl-new-eschaton-btn">
+          Write the Eschaton
+        </button>
+        <p class="tl-empty-state-hint">Your first entry becomes the climax — T&#8209;0</p>
+      </div>`
+    document.getElementById('tl-new-eschaton-btn').addEventListener('click', () => switchPage('entry'))
     return
   }
 
@@ -743,16 +746,11 @@ function renderTimeline() {
   })
 
   container.innerHTML = sortedIds.map(climaxId => {
-    const thread      = threads[climaxId]
-    const threadWords = thread.reduce((sum, e) => sum + countWords(e.text), 0)
-    const avgWords    = thread.length ? Math.round(threadWords / thread.length) : 0
-    const threadMeta  = `<div class="tl-thread-meta">${thread.length} ${thread.length === 1 ? 'entry' : 'entries'} · ${threadWords.toLocaleString()} words · avg ${avgWords}</div>`
-
-    const rows = thread.map((entry, idx) =>
+    const thread = threads[climaxId]
+    const rows   = thread.map((entry, idx) =>
       renderEntryWithChildren(entry, childrenOf, idx === 0, idx === thread.length - 1)
     ).join('')
-
-    return `<div class="tl-thread" data-climax-id="${climaxId}">${threadMeta}${rows}</div>`
+    return `<div class="tl-thread" data-climax-id="${climaxId}">${rows}</div>`
   }).join('')
 }
 
@@ -1045,20 +1043,23 @@ const _shownEntryMilestones = new Set()
 function getTotals() {
   const entries = loadEntries()
   const words   = entries.reduce((sum, e) => sum + countWords(e.text), 0)
-  return { words, entries: entries.length }
+  const avg     = entries.length ? Math.round(words / entries.length) : 0
+  return { words, entries: entries.length, avg }
 }
 
 // Silently sync both counters — used on init and after reset
 function refreshHud() {
-  const { words, entries } = getTotals()
+  const { words, entries, avg } = getTotals()
   const wEl = document.getElementById('score-words')
   const eEl = document.getElementById('score-entries')
   if (wEl) wEl.textContent = words.toLocaleString()
   if (eEl) eEl.textContent = entries
-  const fwEl = document.getElementById('footer-words')
-  const feEl = document.getElementById('footer-entries')
+  const fwEl  = document.getElementById('footer-words')
+  const feEl  = document.getElementById('footer-entries')
+  const faEl  = document.getElementById('footer-avg')
   if (fwEl) fwEl.textContent = words.toLocaleString()
   if (feEl) feEl.textContent = entries
+  if (faEl) faEl.textContent = avg
 }
 
 // Update both counters with spring animations and a "+N words" toast
@@ -1087,8 +1088,10 @@ function updateHud(prev, next) {
 
   const fwEl = document.getElementById('footer-words')
   const feEl = document.getElementById('footer-entries')
+  const faEl = document.getElementById('footer-avg')
   if (fwEl) fwEl.textContent = next.words.toLocaleString()
   if (feEl) feEl.textContent = next.entries
+  if (faEl) faEl.textContent = next.avg
 }
 
 // Floating "+Nw" that pops up from the save button
@@ -1247,6 +1250,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
   animateSaveBtn()
   updateHud({ words: prevWords, entries: prevEntryCount }, next)
   checkMilestones(prevEntryCount)
+  switchPage('timeline')
 })
 
 // Escape cancels an in-progress edit
@@ -1255,7 +1259,6 @@ document.addEventListener('keydown', e => {
 })
 
 document.getElementById('sfx-toggle').addEventListener('click', toggleSound)
-document.getElementById('surface-btn').addEventListener('click', surfaceUp)
 
 // Page toggle
 document.querySelectorAll('.page-toggle-btn').forEach(btn => {
@@ -1300,15 +1303,6 @@ tlContainer.addEventListener('dblclick', e => {
   if (entry) startEditEntry(entry.dataset.entryId)
 })
 
-// Context entry click → edit that entry
-document.getElementById('entry-prev').addEventListener('click', e => {
-  const ctx = e.target.closest('.ctx-entry')
-  if (ctx) startEditEntry(ctx.dataset.entryId)
-})
-document.getElementById('entry-next').addEventListener('click', e => {
-  const ctx = e.target.closest('.ctx-entry')
-  if (ctx) startEditEntry(ctx.dataset.entryId)
-})
 
 // New Entry drag chip — drag from toolbar onto timeline to insert at position
 const newEntryDrag = document.getElementById('new-entry-drag')

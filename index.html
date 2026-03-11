@@ -4,43 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ESCHATON — Prompt Engine</title>
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
 
   <div class="page">
 
-    <!-- Score HUD — fixed corner, words + entries displayed separately -->
-    <div class="score-hud" aria-hidden="true">
-      <div class="score-row">
-        <div class="score-stat">
-          <span class="score-stat-value" id="score-words">0</span>
-          <span class="score-stat-label">words</span>
-        </div>
-        <div class="score-stat">
-          <span class="score-stat-value" id="score-entries">0</span>
-          <span class="score-stat-label">entries</span>
-        </div>
-      </div>
-    </div>
     <button class="sfx-toggle" id="sfx-toggle" aria-label="Toggle sound effects">SFX</button>
 
-    <!-- Page toggle -->
-    <nav class="page-toggle" aria-label="Switch view">
-      <button class="page-toggle-btn active" data-page="entry">Entry</button>
-      <button class="page-toggle-btn" data-page="timeline">Timeline</button>
-    </nav>
-
     <!-- ─── Entry Page ──────────────────────────────────────────────────── -->
-    <div id="page-entry" class="page-section">
+    <div id="page-entry" class="page-section" hidden>
 
       <nav class="scene-nav" aria-label="Scene types">
         <button class="scene-btn" data-scene="portent">Portent</button>
         <button class="scene-btn scene-btn--obfuscation" data-scene="obfuscation">Obfuscation</button>
       </nav>
-
-      <!-- Context: entry before (story-earlier) -->
-      <div id="entry-prev" class="entry-context entry-context--before" hidden></div>
 
       <main>
         <!-- ─── Entry Composer ─────────────────────────────── -->
@@ -81,22 +59,8 @@
             aria-label="Scene text"
           ></textarea>
           <span id="composer-word-count" class="composer-word-count">0 words</span>
-          <p class="thread-status" id="thread-status"></p>
           <div class="composer-footer">
-            <button class="surface-btn" id="surface-btn" hidden aria-label="Return to parent thread">← Up</button>
             <button class="save-btn" id="save-btn">Save Entry</button>
-          </div>
-          <!-- After: entry immediately after this one at the same level -->
-          <div id="entry-next" class="entry-context entry-context--after" hidden></div>
-          <!-- Drill reference: shows the parent entry when drilling into a sub-thread -->
-          <div class="drill-ref" id="drill-ref" hidden>
-            <p class="drill-ref-label">Parent Entry</p>
-            <p class="drill-ref-text" id="drill-ref-text"></p>
-          </div>
-          <!-- Eschaton: always-visible T-0 reference below the save button -->
-          <div class="eschaton-ref" id="eschaton-ref" hidden>
-            <p class="eschaton-ref-label">Eschaton</p>
-            <p class="eschaton-ref-text" id="eschaton-ref-text"></p>
           </div>
         </section>
       </main>
@@ -104,17 +68,9 @@
     </div>
 
     <!-- ─── Timeline Page ───────────────────────────────────────────────── -->
-    <div id="page-timeline" class="page-section" hidden>
+    <div id="page-timeline" class="page-section">
 
       <section class="tl-section" id="tl-section" aria-label="Story timeline">
-        <div class="tl-header">
-          <div class="tl-header-left">
-            <p class="eyebrow">Story</p>
-            <span id="tl-total-words" class="tl-total-words"></span>
-          </div>
-          <div class="tl-tools"></div>
-        </div>
-
         <div id="tl-container" class="tl-container"></div>
 
         <div class="tl-footer">
@@ -126,6 +82,10 @@
             <div class="tl-footer-stat">
               <span class="tl-footer-stat-value" id="footer-entries">0</span>
               <span class="tl-footer-stat-label">entries</span>
+            </div>
+            <div class="tl-footer-stat">
+              <span class="tl-footer-stat-value" id="footer-avg">0</span>
+              <span class="tl-footer-stat-label">avg words</span>
             </div>
           </div>
           <div class="tl-footer-icons">

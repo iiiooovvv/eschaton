@@ -513,6 +513,55 @@ label.icon-btn { cursor: pointer; }
   padding: 0.5rem 0;
 }
 
+.tl-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.tl-empty-state-label {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(190, 165, 135, 0.5);
+}
+
+.tl-new-eschaton-btn {
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: rgba(255, 200, 140, 0.06);
+  border: 1px solid rgba(255, 210, 160, 0.2);
+  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  cursor: pointer;
+  transition: color var(--t), background var(--t), border-color var(--t), box-shadow var(--t);
+  box-shadow: var(--shadow-lift), var(--shadow-inset);
+}
+
+.tl-new-eschaton-btn:hover {
+  background: rgba(255, 200, 140, 0.11);
+  border-color: rgba(255, 210, 160, 0.38);
+  box-shadow: var(--shadow-deep), var(--shadow-inset);
+}
+
+.tl-empty-state-hint {
+  font-family: var(--font);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(190, 165, 135, 0.35);
+}
+
 .tl-thread { display: flex; flex-direction: column; }
 
 .tl-thread-meta {
