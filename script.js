@@ -1055,6 +1055,10 @@ function refreshHud() {
   const eEl = document.getElementById('score-entries')
   if (wEl) wEl.textContent = words.toLocaleString()
   if (eEl) eEl.textContent = entries
+  const fwEl = document.getElementById('footer-words')
+  const feEl = document.getElementById('footer-entries')
+  if (fwEl) fwEl.textContent = words.toLocaleString()
+  if (feEl) feEl.textContent = entries
 }
 
 // Update both counters with spring animations and a "+N words" toast
@@ -1080,6 +1084,11 @@ function updateHud(prev, next) {
       eEl.classList.add('score-bump')
     }
   }
+
+  const fwEl = document.getElementById('footer-words')
+  const feEl = document.getElementById('footer-entries')
+  if (fwEl) fwEl.textContent = next.words.toLocaleString()
+  if (feEl) feEl.textContent = next.entries
 }
 
 // Floating "+Nw" that pops up from the save button

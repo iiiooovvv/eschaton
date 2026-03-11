@@ -441,10 +441,62 @@ label.icon-btn { cursor: pointer; }
   bottom: 0;
   display: flex;
   flex-direction: row;
-  gap: 0.375rem;
-  padding: 0.75rem 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
   background: var(--black);
   border-top: 1px solid var(--glass-border);
+}
+
+.tl-footer-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-right: 0.75rem;
+  border-right: 1px solid var(--glass-border);
+}
+
+.tl-footer-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.tl-footer-stat-value {
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+
+.tl-footer-stat-label {
+  font-family: var(--font);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+.tl-footer-icons {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+}
+
+.tl-footer .icon-btn {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.5rem;
+}
+
+.tl-footer .icon-btn:hover {
+  background: rgba(255, 200, 140, 0.06);
+  border-color: transparent;
 }
 
 /* ─── Timeline Container ──────────────────────────────────────────────────── */
@@ -1112,27 +1164,20 @@ label.icon-btn { cursor: pointer; }
   word-break: break-word;
 }
 
-/* ─── New Entry Drag Chip ─────────────────────── in timeline toolbar ─── */
+/* ─── New Entry Drag Chip ──────────────────────────── in tl-footer ─── */
 .new-entry-chip {
   color: rgba(96, 104, 232, 0.7);
-  background: rgba(96, 104, 232, 0.05);
-  border: 1px dashed rgba(96, 104, 232, 0.28);
-  border-radius: 7px;
-  padding: 0.5rem;
   cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--t), border-color var(--t), background var(--t);
   user-select: none;
   -webkit-user-select: none;
 }
 
 .new-entry-chip:hover {
   color: var(--blue);
-  border-color: rgba(96, 104, 232, 0.50);
-  background: rgba(96, 104, 232, 0.10);
+  background: rgba(96, 104, 232, 0.08);
 }
+
+.new-entry-chip:active { cursor: grabbing; }
 
 .new-entry-chip:active { cursor: grabbing; }
 
