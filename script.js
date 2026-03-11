@@ -517,7 +517,7 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
     : formatPosition(entry.timelinePosition)
   const sceneLabel = (parentPosLabel !== null)
     ? (SCENE_LABELS[entry.sceneType] ?? entry.sceneType)
-    : (isClimax ? 'UR ESCHATON' : (SCENE_LABELS[entry.sceneType] ?? entry.sceneType))
+    : (isClimax ? 'ESCHATON' : (SCENE_LABELS[entry.sceneType] ?? entry.sceneType))
 
   // Position label prefix passed down to this entry's children.
   // Root T-3 → prefix "3"  (children become T-3.1, T-3.2 …)
