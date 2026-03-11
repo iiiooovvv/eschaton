@@ -99,11 +99,9 @@ body {
 
 .scene-btn {
   flex: 1;
-  font-family: var(--font);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--grey);
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
