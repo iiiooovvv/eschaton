@@ -410,6 +410,19 @@ body.scene--obfuscation .entry-textarea:focus { border-left-color: var(--red); }
 
 label.action-btn { cursor: pointer; }
 
+.tl-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--glass-border);
+}
+
+.tl-footer-row {
+  display: flex;
+  gap: 0.375rem;
+}
+
 /* ─── Timeline Container ──────────────────────────────────────────────────── */
 .tl-container {
   display: flex;

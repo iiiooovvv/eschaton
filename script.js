@@ -52,8 +52,8 @@ function selectRandomFigure() {
 
 // Dynamic textarea placeholder changes to match the selected scene
 const COMPOSER_PLACEHOLDER = {
-  portent:     'Write the sign that foretold this. What was noticed — and misread?',
-  obfuscation: 'Write the distraction. What kept everyone looking the wrong way?'
+  portent:     'What fortold the eschaton',
+  obfuscation: 'What distracts from the eschaton'
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────

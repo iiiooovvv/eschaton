@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Narrator — Prompt Engine</title>
+  <title>ESCHATON — Prompt Engine</title>
   <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
@@ -116,6 +116,17 @@
             <div class="new-entry-chip" draggable="true" id="new-entry-drag" title="Drag to insert a new entry at a specific position" hidden>
               ＋ New Entry
             </div>
+          </div>
+        </div>
+
+        <div id="tl-container" class="tl-container"></div>
+
+        <div class="tl-footer">
+          <div class="tl-footer-row">
+            <button class="action-btn" id="export-md-btn" aria-label="Export story as Markdown">Export MD</button>
+            <button class="action-btn" id="export-clear-btn" aria-label="Export story then erase all entries">Export &amp; Erase</button>
+          </div>
+          <div class="tl-footer-row">
             <button class="action-btn" id="export-btn" aria-label="Export story as JSON file">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -124,8 +135,6 @@
               </svg>
               Export
             </button>
-            <button class="action-btn" id="export-md-btn" aria-label="Export story as Markdown">Export MD</button>
-            <button class="action-btn" id="export-clear-btn" aria-label="Export story then erase all entries">Export &amp; Erase</button>
             <!-- label triggers the hidden file input — a standard pattern -->
             <label class="action-btn" id="import-label" for="import-input" role="button" tabindex="0" aria-label="Import story from JSON file">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,14 +147,12 @@
             <input type="file" id="import-input" accept=".json" hidden>
           </div>
         </div>
-
-        <div id="tl-container" class="tl-container"></div>
       </section>
 
     </div>
 
     <footer>
-      <p>Narrator</p>
+      <p>ESCHATON</p>
     </footer>
 
   </div>

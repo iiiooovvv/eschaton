@@ -4,7 +4,7 @@
     {
       "name": "narrator",
       "runtimeExecutable": "/usr/local/bin/python3.12",
-      "runtimeArgs": ["-m", "http.server", "5501", "--directory", "/Users/treygreer/Documents/claudecode/narrator"],
+      "runtimeArgs": ["-m", "http.server", "5501", "--directory", "/Users/treygreer/Documents/claudecode/eschaton"],
       "port": 5501
     }
   ]
