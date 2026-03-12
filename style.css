@@ -325,6 +325,21 @@ body.scene--obfuscation .entry-textarea:focus { border-left-color: var(--red); }
 
 .save-btn:disabled { opacity: 0.28; cursor: default; }
 
+/* Cancel button — icon only, sits beside Save */
+.cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--grey);
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color var(--t);
+}
+
+.cancel-btn:hover { color: var(--white); }
+
 /* Action buttons */
 .action-btn {
   font-family: var(--font);
@@ -373,6 +388,30 @@ body.scene--obfuscation .entry-textarea:focus { border-left-color: var(--red); }
   gap: 1.5rem;
   padding: 0;
 }
+
+/* ─── Story Title ─────────────────────────────────────────────────────────── */
+.story-title {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--white);
+  margin: 0;
+  padding: 1.25rem 1.5rem 0;
+  outline: none;
+  border: none;
+  background: transparent;
+  caret-color: var(--green);
+  min-height: 1em;
+}
+
+.story-title:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+
+.story-title:focus::before { display: none; }
 
 /* ─── Timeline Header ─────────────────────────────────────────────────────── */
 .tl-header {

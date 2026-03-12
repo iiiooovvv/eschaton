@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ESCHATON</title>
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 
@@ -69,6 +72,11 @@
           <span id="composer-word-count" class="composer-word-count">0 words</span>
           <div class="composer-footer">
             <button class="save-btn" id="save-btn">Save Entry</button>
+            <button class="cancel-btn" id="cancel-btn" aria-label="Cancel" title="Cancel">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+              </svg>
+            </button>
           </div>
         </section>
       </main>
@@ -79,6 +87,14 @@
     <div id="page-timeline" class="page-section">
 
       <section class="tl-section" id="tl-section" aria-label="Story timeline">
+        <h1
+          id="story-title"
+          class="story-title"
+          contenteditable="true"
+          spellcheck="false"
+          aria-label="Story title"
+          data-placeholder="Untitled"
+        ></h1>
         <div id="tl-container" class="tl-container"></div>
 
         <div class="tl-footer">

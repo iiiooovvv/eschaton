@@ -112,6 +112,27 @@ function persistEntries(entries) {
   localStorage.setItem('narrator_entries', JSON.stringify(entries))
 }
 
+// ─── Title Storage ────────────────────────────────────────────────────────────
+
+function loadTitle() {
+  return localStorage.getItem('narrator_title') || ''
+}
+
+function saveTitle(text) {
+  localStorage.setItem('narrator_title', text)
+}
+
+function initTitle() {
+  const el = document.getElementById('story-title')
+  if (!el) return
+  el.textContent = loadTitle()
+  el.addEventListener('input', () => saveTitle(el.textContent.trim()))
+  // Prevent newlines — title stays on one line
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); el.blur() }
+  })
+}
+
 // ─── Thread State ─────────────────────────────────────────────────────────────
 
 // Which climax are we currently writing toward?
@@ -640,6 +661,7 @@ function cancelEdit() {
   updateThreadStatus()
   renderTimeline()
   renderEntryContext()
+  switchPage('timeline')
 }
 
 // ─── Start Fresh ──────────────────────────────────────────────────────────────
@@ -651,6 +673,9 @@ function startFresh() {
   // Clear all persisted data
   localStorage.removeItem('narrator_entries')
   localStorage.removeItem('narrator_scene_v3')
+  localStorage.removeItem('narrator_title')
+  const titleEl = document.getElementById('story-title')
+  if (titleEl) titleEl.textContent = ''
 
   // Reset all runtime state
   currentClimaxId      = null
@@ -837,12 +862,14 @@ function exportStory() {
   const entries = loadEntries()
   if (!entries.length) return
 
-  const json  = JSON.stringify(entries, null, 2)
-  const blob  = new Blob([json], { type: 'application/json' })
-  const url   = URL.createObjectURL(blob)
-  const a     = document.createElement('a')
-  a.href      = url
-  a.download  = `narrator-${new Date().toISOString().slice(0, 10)}.json`
+  const title   = loadTitle()
+  const payload = { title, entries }
+  const json    = JSON.stringify(payload, null, 2)
+  const blob    = new Blob([json], { type: 'application/json' })
+  const url     = URL.createObjectURL(blob)
+  const a       = document.createElement('a')
+  a.href        = url
+  a.download    = `narrator-${new Date().toISOString().slice(0, 10)}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -895,12 +922,14 @@ function exportMarkdown() {
       .join('\n\n')
   )
 
-  const md   = threadBlocks.join('\n\n\n')
-  const blob = new Blob([md], { type: 'text/markdown' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
-  a.download = `narrator-${new Date().toISOString().slice(0, 10)}.md`
+  const title  = loadTitle()
+  const header = title ? `# ${title}\n\n` : ''
+  const md     = header + threadBlocks.join('\n\n\n')
+  const blob   = new Blob([md], { type: 'text/markdown' })
+  const url    = URL.createObjectURL(blob)
+  const a      = document.createElement('a')
+  a.href       = url
+  a.download   = `narrator-${new Date().toISOString().slice(0, 10)}.md`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -913,14 +942,19 @@ function importStory(file) {
 
   reader.onload = (e) => {
     try {
-      const imported = JSON.parse(e.target.result)
-      if (!Array.isArray(imported)) throw new Error('Expected an array of entries')
+      const parsed = JSON.parse(e.target.result)
+
+      // Support both old format (bare array) and new format ({ title, entries })
+      const importedEntries = Array.isArray(parsed) ? parsed : parsed.entries
+      const importedTitle   = Array.isArray(parsed) ? null : (parsed.title || null)
+
+      if (!Array.isArray(importedEntries)) throw new Error('Expected an array of entries')
 
       const existing    = loadEntries()
       const existingIds = new Set(existing.map(e => e.id))
 
       // Validate shape, skip duplicates, normalise eschaton (absent in older exports)
-      const valid = imported
+      const valid = importedEntries
         .filter(e =>
           e.id && e.climaxId && e.sceneType &&
           typeof e.text === 'string' &&
@@ -928,14 +962,23 @@ function importStory(file) {
         )
         .map(e => ({ ...e, eschaton: e.eschaton ?? null }))
 
-      if (!valid.length) return
+      if (!valid.length && !importedTitle) return
 
       persistEntries([...existing, ...valid])
+
+      // Restore title if the import carries one and nothing is set locally
+      if (importedTitle && !loadTitle()) {
+        saveTitle(importedTitle)
+        const titleEl = document.getElementById('story-title')
+        if (titleEl) titleEl.textContent = importedTitle
+      }
+
       initCurrentClimaxId()
       updateThreadStatus()
       renderTimeline()
       updateNewEntryChip()
       renderEntryContext()
+      refreshHud()
     } catch (err) {
       console.error('Narrator import failed:', err.message)
       // A future iteration could show an inline error state here
@@ -1253,9 +1296,11 @@ document.getElementById('save-btn').addEventListener('click', () => {
   switchPage('timeline')
 })
 
+document.getElementById('cancel-btn').addEventListener('click', cancelEdit)
+
 // Escape cancels an in-progress edit
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && editingEntryId) cancelEdit()
+  if (e.key === 'Escape') cancelEdit()
 })
 
 document.getElementById('sfx-toggle').addEventListener('click', toggleSound)
@@ -1419,6 +1464,7 @@ const saved = loadSavedScene()
 let initialScene = (saved && saved !== 'cliffhanger' && SCENE_LABELS[saved]) ? saved : 'portent'
 selectScene(initialScene)
 
+initTitle()
 updateThreadStatus()
 renderTimeline()
 updateSceneNav()
