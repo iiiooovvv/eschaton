@@ -629,7 +629,7 @@ label.icon-btn { cursor: pointer; }
 .tl-entry.drag-over-bottom   { box-shadow:  0 2px 0 0 rgba(245, 234, 214, 0.6); }
 .tl-entry:last-child         { border-bottom: none; }
 
-/* Scene dot — glowing LED */
+/* Scene dot — kept only as fallback / for climax (portent & obfuscation use SVG icon instead) */
 .tl-entry::before {
   content: '';
   position: absolute;
@@ -638,25 +638,24 @@ label.icon-btn { cursor: pointer; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(255, 200, 140, 0.15);
-  border: 1px solid rgba(255, 200, 140, 0.12);
+  background: transparent;
+  border: none;
 }
 
-.tl-entry[data-scene="cliffhanger"]::before {
-  background: var(--red);
-  border-color: var(--red);
-  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
+/* Scene SVG icon — replaces dot for portent and obfuscation */
+.tl-scene-icon {
+  position: absolute;
+  left: 0.25rem;
+  top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  line-height: 1;
 }
-.tl-entry[data-scene="portent"]::before {
-  background: var(--green);
-  border-color: var(--green);
-  box-shadow: 0 0 7px rgba(40, 200, 122, 0.6), 0 0 14px rgba(40, 200, 122, 0.22);
-}
-.tl-entry[data-scene="obfuscation"]::before {
-  background: var(--red);
-  border-color: var(--red);
-  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
-}
+
+.tl-entry[data-scene="portent"]     .tl-scene-icon { color: var(--green); }
+.tl-entry[data-scene="obfuscation"] .tl-scene-icon { color: var(--red);   }
 
 /* Connector line */
 .tl-entry:not(:last-child)::after {
@@ -700,8 +699,11 @@ label.icon-btn { cursor: pointer; }
 
 .tl-entry--climax .tl-pos { color: var(--red); font-weight: 800; }
 
-/* Scene label sits in the meta row alongside the position chip */
+/* Scene icon / label sits in the meta row alongside the position chip */
 .tl-scene {
+  display: flex;
+  align-items: center;
+  line-height: 1;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.15em;

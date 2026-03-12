@@ -17,6 +17,12 @@ const SCENE_LABELS = {
   obfuscation: 'Obfuscation'
 }
 
+// SVG icons for scene types — used in the timeline meta row
+const SCENE_ICONS = {
+  portent: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Portent"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>`,
+  obfuscation: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Obfuscation"><path d="M0 .5A.5.5 0 0 1 .5 0h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H2v-2H.5a.5.5 0 0 1-.5-.5v-3A.5.5 0 0 1 .5 6H2V4H.5a.5.5 0 0 1-.5-.5zM3 4v2h4.5V4zm5.5 0v2H13V4zM3 10v2h4.5v-2zm5.5 0v2H13v-2zM1 1v2h3.5V1zm4.5 0v2h5V1zm6 0v2H15V1zM1 7v2h3.5V7zm4.5 0v2h5V7zm6 0v2H15V7zM1 13v2h3.5v-2zm4.5 0v2h5v-2zm6 0v2H15v-2z"/></svg>`,
+}
+
 // ─── Rhetorical Figure Definitions ───────────────────────────────────────────
 
 const FIGURE_DEFINITIONS = {
@@ -536,9 +542,12 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
   const pos        = parentPosLabel !== null
     ? `T-${parentPosLabel}.${siblingIndex}`
     : formatPosition(entry.timelinePosition)
-  const sceneLabel = (parentPosLabel !== null)
-    ? (SCENE_LABELS[entry.sceneType] ?? entry.sceneType)
-    : (isClimax ? 'ESCHATON' : (SCENE_LABELS[entry.sceneType] ?? entry.sceneType))
+  // Bullet-position icon: SVG for portent/obfuscation, nothing for climax (keeps ::before dot)
+  const bulletIcon = !isClimax
+    ? `<span class="tl-scene-icon">${SCENE_ICONS[entry.sceneType] ?? ''}</span>`
+    : ''
+  // Meta-row label: only shown for the climax (ESCHATON text)
+  const sceneContent = isClimax ? 'ESCHATON' : ''
 
   // Position label prefix passed down to this entry's children.
   // Root T-3 → prefix "3"  (children become T-3.1, T-3.2 …)
@@ -562,10 +571,11 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
 
   const entryHtml = `
     <div class="tl-entry${isClimax ? ' tl-entry--climax' : ''}${isEditing ? ' tl-entry--editing' : ''}${hasChildren ? ' tl-entry--has-children' : ''}" draggable="true" data-scene="${entry.sceneType}" data-entry-id="${entry.id}">
+      ${bulletIcon}
       <div class="tl-meta">
         ${collapseBtn}
         <span class="tl-pos">${pos}</span>
-        <span class="tl-scene">${sceneLabel}</span>
+        ${sceneContent ? `<span class="tl-scene">${sceneContent}</span>` : ''}
         ${figureHtml}
         <div class="tl-meta-right">
           <span class="tl-wordcount">${wc}w</span>
@@ -743,7 +753,7 @@ function renderTimeline() {
         <button class="tl-new-eschaton-btn" id="tl-new-eschaton-btn">
           Write the Eschaton
         </button>
-        <p class="tl-empty-state-hint">Your first entry becomes the climax — T&#8209;0</p>
+        <p class="tl-empty-state-hint">Your first entry becomes the ending — T&#8209;0</p>
       </div>`
     document.getElementById('tl-new-eschaton-btn').addEventListener('click', () => switchPage('entry'))
     return
