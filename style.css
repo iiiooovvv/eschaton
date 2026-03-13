@@ -668,16 +668,8 @@ label.icon-btn { cursor: pointer; }
   background: linear-gradient(to bottom, rgba(255, 200, 140, 0.1), transparent);
 }
 
-/* UR ESCHATON dot — larger and always red, regardless of stored sceneType */
-.tl-entry--climax::before {
-  width: 9px;
-  height: 9px;
-  left: 0.5375rem;
-  top: 1.725rem;
-  background: var(--red);
-  border-color: var(--red);
-  box-shadow: 0 0 7px rgba(232, 32, 48, 0.6), 0 0 14px rgba(232, 32, 48, 0.22);
-}
+/* UR ESCHATON uses the 0-circle-fill icon — no dot needed */
+.tl-entry--climax .tl-scene-icon { color: var(--red); }
 
 /* ─── Entry Meta Row ──────────────────────────────────────────────────────── */
 .tl-meta {

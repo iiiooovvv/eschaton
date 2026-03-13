@@ -17,10 +17,11 @@ const SCENE_LABELS = {
   obfuscation: 'Obfuscation'
 }
 
-// SVG icons for scene types — used in the timeline meta row
+// SVG icons for scene types — used as bullet indicators on the timeline
 const SCENE_ICONS = {
-  portent: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Portent"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>`,
+  portent:     `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Portent"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>`,
   obfuscation: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Obfuscation"><path d="M0 .5A.5.5 0 0 1 .5 0h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H2v-2H.5a.5.5 0 0 1-.5-.5v-3A.5.5 0 0 1 .5 6H2V4H.5a.5.5 0 0 1-.5-.5zM3 4v2h4.5V4zm5.5 0v2H13V4zM3 10v2h4.5v-2zm5.5 0v2H13v-2zM1 1v2h3.5V1zm4.5 0v2h5V1zm6 0v2H15V1zM1 7v2h3.5V7zm4.5 0v2h5V7zm6 0v2H15V7zM1 13v2h3.5v-2zm4.5 0v2h5v-2zm6 0v2H15v-2z"/></svg>`,
+  eschaton:    `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-label="Eschaton"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg>`,
 }
 
 // ─── Rhetorical Figure Definitions ───────────────────────────────────────────
@@ -542,10 +543,9 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
   const pos        = parentPosLabel !== null
     ? `T-${parentPosLabel}.${siblingIndex}`
     : formatPosition(entry.timelinePosition)
-  // Bullet-position icon: SVG for portent/obfuscation, nothing for climax (keeps ::before dot)
-  const bulletIcon = !isClimax
-    ? `<span class="tl-scene-icon">${SCENE_ICONS[entry.sceneType] ?? ''}</span>`
-    : ''
+  // Bullet-position icon: scene icon for portent/obfuscation, eschaton icon for climax
+  const bulletSvg = isClimax ? SCENE_ICONS.eschaton : (SCENE_ICONS[entry.sceneType] ?? '')
+  const bulletIcon = `<span class="tl-scene-icon">${bulletSvg}</span>`
   // Meta-row label: only shown for the climax (ESCHATON text)
   const sceneContent = isClimax ? 'ESCHATON' : ''
 
