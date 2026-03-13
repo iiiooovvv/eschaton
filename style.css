@@ -543,61 +543,159 @@ label.icon-btn { cursor: pointer; }
   gap: 3rem;
 }
 
-.tl-empty {
-  font-family: var(--font);
-  font-size: 0.8125rem;
-  color: rgba(190, 165, 135, 0.75);
-  padding: 0.5rem 0;
-}
-
-.tl-empty-state {
+/* ─── Timeline Composer ────────────────────────────────────────────────────── */
+.tl-composer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 3rem 1rem;
-  text-align: center;
+  gap: 0.625rem;
+  padding: 1.25rem 0 1.5rem;
+  border-bottom: 1px solid rgba(255, 200, 140, 0.08);
+  margin-bottom: 0.25rem;
 }
 
-.tl-empty-state-label {
-  font-family: var(--font);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(190, 165, 135, 0.5);
+.tl-composer--first {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
-.tl-new-eschaton-btn {
+.tl-composer-eyebrow {
   font-family: var(--font);
-  font-size: 1rem;
+  font-size: 0.625rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--white);
-  background: rgba(255, 200, 140, 0.06);
-  border: 1px solid rgba(255, 210, 160, 0.2);
-  border-radius: 10px;
-  padding: 0.875rem 2rem;
-  cursor: pointer;
-  transition: color var(--t), background var(--t), border-color var(--t), box-shadow var(--t);
-  box-shadow: var(--shadow-lift), var(--shadow-inset);
+  color: rgba(190, 165, 135, 0.4);
 }
 
-.tl-new-eschaton-btn:hover {
-  background: rgba(255, 200, 140, 0.11);
-  border-color: rgba(255, 210, 160, 0.38);
-  box-shadow: var(--shadow-deep), var(--shadow-inset);
-}
-
-.tl-empty-state-hint {
+.tl-composer-hint {
   font-family: var(--font);
   font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(190, 165, 135, 0.35);
+  color: rgba(190, 165, 135, 0.3);
 }
+
+.tl-composer-scene-row {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.tl-composer-scene-btn {
+  font-family: var(--font);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255, 200, 140, 0.16);
+  border-radius: 4px;
+  color: rgba(245, 234, 214, 0.36);
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t);
+}
+.tl-composer-scene-btn:hover {
+  color: rgba(245, 234, 214, 0.6);
+  border-color: rgba(255, 200, 140, 0.32);
+}
+.tl-composer-scene-btn.active[data-scene="portent"]     { color: var(--green); border-color: var(--green); }
+.tl-composer-scene-btn.active[data-scene="obfuscation"] { color: var(--red);   border-color: var(--red);   }
+
+.tl-composer-textarea {
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.38);
+  border: var(--slab);
+  border-left: 4px solid rgba(255, 200, 140, 0.18);
+  border-radius: 10px;
+  padding: 1rem 1.125rem;
+  resize: none;
+  width: 100%;
+  outline: none;
+  min-height: 100px;
+  overflow: hidden;
+  transition: border-left-color var(--t);
+}
+.tl-composer-textarea::placeholder { color: rgba(200, 175, 145, 0.4); }
+.tl-composer-textarea:focus         { border-left-color: var(--white); }
+body.scene--portent     .tl-composer-textarea:focus { border-left-color: var(--green); }
+body.scene--obfuscation .tl-composer-textarea:focus { border-left-color: var(--red); }
+
+.tl-composer-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tl-composer-wc {
+  font-size: 0.65rem;
+  color: rgba(245, 234, 214, 0.3);
+  letter-spacing: 0.05em;
+  margin-right: auto;
+}
+
+.tl-composer-save-btn {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--white);
+  border: 2px solid var(--white);
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  transition: background var(--t), color var(--t), box-shadow var(--t), transform var(--t);
+  box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.18);
+}
+.tl-composer-save-btn:hover  { background: var(--black); color: var(--white); box-shadow: var(--shadow-deep); }
+.tl-composer-save-btn:active { transform: scale(0.93) translateY(1px); box-shadow: var(--shadow-press); }
+
+.tl-composer-cancel-btn {
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: rgba(245, 234, 214, 0.3);
+  cursor: pointer;
+  padding: 0.25rem 0.375rem;
+  line-height: 1;
+  transition: color var(--t);
+}
+.tl-composer-cancel-btn:hover { color: rgba(245, 234, 214, 0.7); }
+
+/* ── Empty timeline drop zone ──────────────────────────────────────────────── */
+.tl-empty-drop-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  border: 2px dashed rgba(255, 200, 140, 0.12);
+  border-radius: 12px;
+  margin: 2rem 0;
+  transition: border-color var(--t), background var(--t);
+}
+.tl-empty-drop-zone.drag-active {
+  border-color: rgba(255, 200, 140, 0.45);
+  background: rgba(255, 200, 140, 0.04);
+}
+
+.tl-empty-label {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(190, 165, 135, 0.3);
+  text-align: center;
+}
+.tl-empty-label strong { color: rgba(190, 165, 135, 0.5); font-weight: 800; }
 
 .tl-thread { display: flex; flex-direction: column; }
 

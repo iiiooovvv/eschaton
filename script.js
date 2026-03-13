@@ -163,6 +163,7 @@ let draggedEntryId = null
 let currentPage          = 'timeline'
 let draggingNewEntry     = false
 let pendingInsertPosition = null  // { targetId, insertBefore } | null
+let composerPosition      = null  // { targetId, insertBefore } | null — where the inline new-entry form lives
 
 // ─── Page Switching ───────────────────────────────────────────────────────────
 
@@ -320,7 +321,7 @@ function renderContextEntry(entry, direction) {
 // Show/hide the "New Entry" drag chip based on whether a thread is active
 function updateNewEntryChip() {
   const chip = document.getElementById('new-entry-drag')
-  if (chip) chip.hidden = !currentClimaxId
+  if (chip) chip.hidden = false  // always visible — drag it to start writing
 }
 
 function initCurrentClimaxId() {
@@ -438,10 +439,11 @@ function drillIntoEntry(entryId) {
   updateSceneNav()
   updateThreadStatus()
   renderTimeline()
-  switchPage('entry')
 
-  document.getElementById('composer').scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  entryTextarea.focus()
+  requestAnimationFrame(() => {
+    const ta = document.getElementById('tl-composer-textarea')
+    if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); ta.focus() }
+  })
 }
 
 function surfaceUp() {
@@ -640,7 +642,7 @@ function startEditEntry(entryId) {
 
   editingEntryId = entryId
 
-  switchPage('entry')  // shows entry page, calls renderEntryContext with editingEntryId set
+  // (entry page kept for legacy access but primary editing is now inline)
 
   // Switch scene to match the entry so the prompt is contextually relevant
   selectScene(entry.sceneType)
@@ -704,6 +706,8 @@ function startFresh() {
   // Reset all runtime state
   currentClimaxId      = null
   editingEntryId       = null
+  composerPosition     = null
+  pendingInsertPosition = null
   currentEschaton = null
   _predrillClimaxId    = null
   _collapsedEntries.clear()
@@ -753,23 +757,53 @@ function getThreads(entries) {
   return map
 }
 
+function renderNewEntryComposer() {
+  const hasEntries = loadEntries().length > 0
+  const ph = !hasEntries
+    ? 'Write the Eschaton…'
+    : currentScene === 'obfuscation'
+      ? 'What distracts from the eschaton…'
+      : 'What foretold the eschaton…'
+  const sceneRow = hasEntries ? `
+      <div class="tl-composer-scene-row">
+        <button class="tl-composer-scene-btn${currentScene !== 'obfuscation' ? ' active' : ''}" data-action="new-scene" data-scene="portent">Portent</button>
+        <button class="tl-composer-scene-btn${currentScene === 'obfuscation' ? ' active' : ''}" data-action="new-scene" data-scene="obfuscation">Obfuscation</button>
+      </div>` : ''
+  return `
+    <div class="tl-composer" id="tl-composer">
+      ${sceneRow}
+      <textarea class="tl-composer-textarea" id="tl-composer-textarea" placeholder="${ph}"></textarea>
+      <div class="tl-composer-footer">
+        <span class="tl-composer-wc" id="tl-composer-wc">0 words</span>
+        <button class="tl-composer-save-btn" data-action="new-save">${hasEntries ? 'Save' : 'Write the Eschaton'}</button>
+        ${hasEntries ? '<button class="tl-composer-cancel-btn" data-action="new-cancel">✕</button>' : ''}
+      </div>
+    </div>`
+}
+
 function renderTimeline() {
   const entries   = loadEntries()
   const container = document.getElementById('tl-container')
   if (!container) return
 
+  // Preserve any in-progress composer text across re-renders
+  const prevComposerText = (() => {
+    const ta = document.getElementById('tl-composer-textarea')
+    return ta ? ta.value : ''
+  })()
+
   updateNewEntryChip()
 
   if (!entries.length) {
-    container.innerHTML = `
-      <div class="tl-empty-state">
-        <p class="tl-empty-state-label">No entries yet</p>
-        <button class="tl-new-eschaton-btn" id="tl-new-eschaton-btn">
-          Write the Eschaton
-        </button>
-        <p class="tl-empty-state-hint">Your first entry becomes the ending — T&#8209;0</p>
-      </div>`
-    document.getElementById('tl-new-eschaton-btn').addEventListener('click', () => switchPage('entry'))
+    container.innerHTML = composerPosition
+      ? renderNewEntryComposer()
+      : `<div class="tl-empty-drop-zone">
+           <p class="tl-empty-label">Drag the <strong>+</strong> to write your first entry</p>
+         </div>`
+    if (composerPosition && prevComposerText) {
+      const ta = document.getElementById('tl-composer-textarea')
+      if (ta) { ta.value = prevComposerText; ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px' }
+    }
     return
   }
 
@@ -794,13 +828,33 @@ function renderTimeline() {
     return (bC?.createdAt ?? 0) - (aC?.createdAt ?? 0)
   })
 
-  container.innerHTML = sortedIds.map(climaxId => {
+  const threadsHtml = sortedIds.map(climaxId => {
     const thread = threads[climaxId]
-    const rows   = thread.map((entry, idx) =>
-      renderEntryWithChildren(entry, childrenOf, idx === 0, idx === thread.length - 1)
-    ).join('')
-    return `<div class="tl-thread" data-climax-id="${climaxId}">${rows}</div>`
+    const pieces = []
+    thread.forEach((entry, idx) => {
+      if (composerPosition?.targetId === entry.id && composerPosition.insertBefore)
+        pieces.push(renderNewEntryComposer())
+      pieces.push(renderEntryWithChildren(entry, childrenOf, idx === 0, idx === thread.length - 1))
+      if (composerPosition?.targetId === entry.id && !composerPosition.insertBefore)
+        pieces.push(renderNewEntryComposer())
+    })
+    return `<div class="tl-thread" data-climax-id="${climaxId}">${pieces.join('')}</div>`
   }).join('')
+
+  container.innerHTML = threadsHtml
+
+  // Restore any in-progress composer text
+  if (prevComposerText) {
+    const ta = document.getElementById('tl-composer-textarea')
+    if (ta) {
+      ta.value = prevComposerText
+      ta.style.height = 'auto'
+      ta.style.height = ta.scrollHeight + 'px'
+      const n   = countWords(prevComposerText)
+      const wcEl = document.getElementById('tl-composer-wc')
+      if (wcEl) wcEl.textContent = `${n} ${n === 1 ? 'word' : 'words'}`
+    }
+  }
 }
 
 // ─── Reorder ──────────────────────────────────────────────────────────────────
@@ -1322,10 +1376,15 @@ document.getElementById('save-btn').addEventListener('click', () => {
 
 document.getElementById('cancel-btn').addEventListener('click', cancelEdit)
 
-// Escape cancels an in-progress edit
+// Escape cancels an in-progress edit or new-entry composer
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return
-  if (editingEntryId && currentPage === 'timeline') {
+  if (composerPosition !== null && currentPage === 'timeline') {
+    // New-entry composer is open — dismiss it
+    composerPosition      = null
+    pendingInsertPosition = null
+    renderTimeline()
+  } else if (editingEntryId && currentPage === 'timeline') {
     // Inline edit — just dismiss without touching the entry-page composer
     editingEntryId = null
     renderTimeline()
@@ -1362,6 +1421,52 @@ document.getElementById('tl-container').addEventListener('click', e => {
     if (_collapsedEntries.has(id)) _collapsedEntries.delete(id)
     else _collapsedEntries.add(id)
     renderTimeline()
+    return
+  }
+
+  // ── Timeline composer (new entry) ─────────────────────────────────────────
+  const newSceneBtn = e.target.closest('[data-action="new-scene"]')
+  if (newSceneBtn) {
+    document.querySelectorAll('[data-action="new-scene"]').forEach(b => b.classList.remove('active'))
+    newSceneBtn.classList.add('active')
+    currentScene = newSceneBtn.dataset.scene
+    saveScene(currentScene)
+    const ta = document.getElementById('tl-composer-textarea')
+    if (ta) ta.placeholder = currentScene === 'obfuscation'
+      ? 'What distracts from the eschaton…'
+      : 'What foretold the eschaton…'
+    return
+  }
+
+  const newSaveBtn = e.target.closest('[data-action="new-save"]')
+  if (newSaveBtn) {
+    const ta = document.getElementById('tl-composer-textarea')
+    if (!ta) return
+    const text = ta.value.trim()
+    if (!text) return
+
+    const prevEntries    = loadEntries()
+    const prevWords      = prevEntries.reduce((s, e) => s + countWords(e.text), 0)
+    const prevEntryCount = prevEntries.length
+
+    const newEntry = createEntry(currentScene, '', '', text, currentEschaton)
+    if (pendingInsertPosition) {
+      moveEntryToPosition(newEntry.id, pendingInsertPosition.targetId, pendingInsertPosition.insertBefore)
+      pendingInsertPosition = null
+    }
+
+    // Clear textarea and close composer before re-render
+    ta.value = ''
+    composerPosition = null
+
+    const next = getTotals()
+    playSave()
+    updateHud({ words: prevWords, entries: prevEntryCount }, next)
+    checkMilestones(prevEntryCount)
+    updateThreadStatus()
+    renderTimeline()
+    updateSceneNav()
+    updateNewEntryChip()
     return
   }
 
@@ -1403,6 +1508,14 @@ document.getElementById('tl-container').addEventListener('click', e => {
     renderTimeline()
     return
   }
+
+  const newCancelBtn = e.target.closest('[data-action="new-cancel"]')
+  if (newCancelBtn) {
+    composerPosition      = null
+    pendingInsertPosition = null
+    renderTimeline()
+    return
+  }
 })
 
 // ─── Drag-and-Drop Event Listeners ───────────────────────────────────────────
@@ -1412,23 +1525,33 @@ document.getElementById('tl-container').addEventListener('click', e => {
 
 const tlContainer = document.getElementById('tl-container')
 
-// Live word count + auto-grow for inline textarea
+// Live word count + auto-grow for both the new-entry composer and inline edit
 tlContainer.addEventListener('input', e => {
-  if (e.target.id !== 'tl-inline-textarea') return
-  const ta = e.target
-  ta.style.height = 'auto'
-  ta.style.height = ta.scrollHeight + 'px'
-  const n   = countWords(ta.value)
-  const wcEl = document.getElementById('tl-inline-wc')
-  if (wcEl) wcEl.textContent = `${n} ${n === 1 ? 'word' : 'words'}`
+  if (e.target.id === 'tl-composer-textarea') {
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = ta.scrollHeight + 'px'
+    const n   = countWords(ta.value)
+    const wcEl = document.getElementById('tl-composer-wc')
+    if (wcEl) wcEl.textContent = `${n} ${n === 1 ? 'word' : 'words'}`
+  } else if (e.target.id === 'tl-inline-textarea') {
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = ta.scrollHeight + 'px'
+    const n   = countWords(ta.value)
+    const wcEl = document.getElementById('tl-inline-wc')
+    if (wcEl) wcEl.textContent = `${n} ${n === 1 ? 'word' : 'words'}`
+  }
 })
 
-// Cmd/Ctrl+Enter saves inline edit
+// Cmd/Ctrl+Enter saves from both textareas
 tlContainer.addEventListener('keydown', e => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && e.target.id === 'tl-inline-textarea') {
-    e.preventDefault()
-    const saveBtn = document.querySelector('[data-action="inline-save"]')
-    if (saveBtn) saveBtn.click()
+  if (!(e.metaKey || e.ctrlKey) || e.key !== 'Enter') return
+  e.preventDefault()
+  if (e.target.id === 'tl-composer-textarea') {
+    document.querySelector('[data-action="new-save"]')?.click()
+  } else if (e.target.id === 'tl-inline-textarea') {
+    document.querySelector('[data-action="inline-save"]')?.click()
   }
 })
 
@@ -1481,6 +1604,9 @@ tlContainer.addEventListener('dragover', e => {
   document.querySelectorAll('.tl-entry').forEach(el =>
     el.classList.remove('drag-over-top', 'drag-over-bottom')
   )
+  // Highlight the empty drop zone when dragging the new-entry chip over it
+  const dropZone = tlContainer.querySelector('.tl-empty-drop-zone')
+  if (dropZone) dropZone.classList.toggle('drag-active', draggingNewEntry && !target)
   if (!target) return
   if (!draggingNewEntry && target.dataset.entryId === draggedEntryId) return
 
@@ -1494,17 +1620,14 @@ tlContainer.addEventListener('dragleave', e => {
     document.querySelectorAll('.tl-entry').forEach(el =>
       el.classList.remove('drag-over-top', 'drag-over-bottom')
     )
+    const dropZone = tlContainer.querySelector('.tl-empty-drop-zone')
+    if (dropZone) dropZone.classList.remove('drag-active')
   }
 })
 
 tlContainer.addEventListener('drop', e => {
   e.preventDefault()
   const target = e.target.closest('.tl-entry')
-  if (!target) return
-
-  const targetId = target.dataset.entryId
-  const { top, height } = target.getBoundingClientRect()
-  const insertBefore = e.clientY < top + height / 2
 
   // Clean up visual state
   document.querySelectorAll('.tl-entry').forEach(el =>
@@ -1512,20 +1635,50 @@ tlContainer.addEventListener('drop', e => {
   )
 
   if (draggingNewEntry) {
-    // Drag from "New Entry" chip — set pending position and open entry page
+    draggingNewEntry = false
     const entries = loadEntries()
+
+    if (!target) {
+      // Drop on empty drop zone — first entry will become T-0
+      composerPosition      = { targetId: null, insertBefore: false }
+      pendingInsertPosition = null
+      selectScene(currentScene || 'portent')
+      renderTimeline()
+      requestAnimationFrame(() => document.getElementById('tl-composer-textarea')?.focus())
+      return
+    }
+
+    const targetId    = target.dataset.entryId
+    const { top, height } = target.getBoundingClientRect()
+    const insertBefore = e.clientY < top + height / 2
     const tgt = entries.find(e => e.id === targetId)
     if (tgt) {
+      // For sub-entries, walk up to find the root-level ancestor for visual placement
+      let visualId = targetId
+      if (tgt.eschaton) {
+        let cur = tgt
+        while (cur?.eschaton) cur = entries.find(e => e.id === cur.eschaton)
+        if (cur) visualId = cur.id
+      }
       currentClimaxId       = tgt.climaxId
       currentEschaton       = null
+      composerPosition      = { targetId: visualId, insertBefore }
       pendingInsertPosition = { targetId, insertBefore }
-      draggingNewEntry      = false
       selectScene(currentScene || 'portent')
-      switchPage('entry')
+      renderTimeline()
+      requestAnimationFrame(() => {
+        const ta = document.getElementById('tl-composer-textarea')
+        if (ta) { ta.focus(); ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) }
+      })
     }
     return
   }
 
+  // Regular entry reorder drag
+  if (!target) return
+  const targetId    = target.dataset.entryId
+  const { top, height } = target.getBoundingClientRect()
+  const insertBefore = e.clientY < top + height / 2
   if (!draggedEntryId || targetId === draggedEntryId) return
   moveEntryToPosition(draggedEntryId, targetId, insertBefore)
   draggedEntryId = null
