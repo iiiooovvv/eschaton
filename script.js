@@ -554,8 +554,23 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
     ? `<button class="collapse-btn" draggable="false" data-action="collapse" data-entry-id="${entry.id}" aria-label="${collapsed ? 'Expand' : 'Collapse'} sub-thread">${collapsed ? '▶' : '▼'}</button>`
     : ''
 
+  const bodyHtml = isEditing
+    ? `<div class="tl-inline-edit">
+        <div class="tl-inline-scene-row">
+          <button class="tl-inline-scene-btn${entry.sceneType === 'portent'     ? ' active' : ''}" draggable="false" data-action="inline-scene" data-scene="portent"     data-entry-id="${entry.id}">Portent</button>
+          <button class="tl-inline-scene-btn${entry.sceneType === 'obfuscation' ? ' active' : ''}" draggable="false" data-action="inline-scene" data-scene="obfuscation" data-entry-id="${entry.id}">Obfuscation</button>
+        </div>
+        <textarea class="tl-inline-textarea" id="tl-inline-textarea" draggable="false">${escapeHtml(entry.text)}</textarea>
+        <div class="tl-inline-footer">
+          <span class="tl-inline-wc" id="tl-inline-wc">${wc} ${wc === 1 ? 'word' : 'words'}</span>
+          <button class="tl-inline-update-btn" draggable="false" data-action="inline-save" data-entry-id="${entry.id}">Update</button>
+          <button class="tl-inline-cancel-btn" draggable="false" data-action="inline-cancel">✕</button>
+        </div>
+      </div>`
+    : `<p class="tl-text">${escapeHtml(entry.text)}</p>`
+
   const entryHtml = `
-    <div class="tl-entry${isClimax ? ' tl-entry--climax' : ''}${isEditing ? ' tl-entry--editing' : ''}${hasChildren ? ' tl-entry--has-children' : ''}" draggable="true" data-scene="${entry.sceneType}" data-entry-id="${entry.id}">
+    <div class="tl-entry${isClimax ? ' tl-entry--climax' : ''}${isEditing ? ' tl-entry--editing' : ''}${hasChildren ? ' tl-entry--has-children' : ''}" draggable="${isEditing ? 'false' : 'true'}" data-scene="${entry.sceneType}" data-entry-id="${entry.id}">
       ${bulletIcon}
       <div class="tl-meta">
         ${collapseBtn}
@@ -572,7 +587,7 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
           </div>
         </div>
       </div>
-      <p class="tl-text">${escapeHtml(entry.text)}</p>
+      ${bodyHtml}
     </div>`
 
   if (hasChildren && !collapsed) {
@@ -601,7 +616,22 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
 }
 
-// ─── Entry Edit ───────────────────────────────────────────────────────────────
+// ─── Inline Edit (timeline) ───────────────────────────────────────────────────
+
+function startInlineEdit(entryId) {
+  editingEntryId = entryId
+  renderTimeline()
+  requestAnimationFrame(() => {
+    const ta = document.getElementById('tl-inline-textarea')
+    if (!ta) return
+    ta.style.height = 'auto'
+    ta.style.height = ta.scrollHeight + 'px'
+    ta.focus()
+    ta.selectionStart = ta.selectionEnd = ta.value.length
+  })
+}
+
+// ─── Entry Edit (entry page) ──────────────────────────────────────────────────
 
 function startEditEntry(entryId) {
   const entries = loadEntries()
@@ -1294,7 +1324,14 @@ document.getElementById('cancel-btn').addEventListener('click', cancelEdit)
 
 // Escape cancels an in-progress edit
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') cancelEdit()
+  if (e.key !== 'Escape') return
+  if (editingEntryId && currentPage === 'timeline') {
+    // Inline edit — just dismiss without touching the entry-page composer
+    editingEntryId = null
+    renderTimeline()
+  } else {
+    cancelEdit()
+  }
 })
 
 document.getElementById('sfx-toggle').addEventListener('click', toggleSound)
@@ -1325,6 +1362,46 @@ document.getElementById('tl-container').addEventListener('click', e => {
     if (_collapsedEntries.has(id)) _collapsedEntries.delete(id)
     else _collapsedEntries.add(id)
     renderTimeline()
+    return
+  }
+
+  // ── Inline edit actions ────────────────────────────────────────────────────
+  const inlineSceneBtn = e.target.closest('[data-action="inline-scene"]')
+  if (inlineSceneBtn) {
+    document.querySelectorAll('[data-action="inline-scene"]').forEach(b => b.classList.remove('active'))
+    inlineSceneBtn.classList.add('active')
+    const entryEl = inlineSceneBtn.closest('.tl-entry')
+    if (entryEl) entryEl.dataset.scene = inlineSceneBtn.dataset.scene
+    return
+  }
+
+  const inlineSaveBtn = e.target.closest('[data-action="inline-save"]')
+  if (inlineSaveBtn) {
+    const ta = document.getElementById('tl-inline-textarea')
+    if (!ta) return
+    const text = ta.value.trim()
+    if (!text) return
+    const entryId = inlineSaveBtn.dataset.entryId
+    const entries = loadEntries()
+    const entry   = entries.find(e => e.id === entryId)
+    if (entry) {
+      const activeScene = document.querySelector('[data-action="inline-scene"].active')
+      if (activeScene) entry.sceneType = activeScene.dataset.scene
+      entry.text = text
+      persistEntries(entries)
+    }
+    editingEntryId = null
+    playSave()
+    renderTimeline()
+    refreshHud()
+    return
+  }
+
+  const inlineCancelBtn = e.target.closest('[data-action="inline-cancel"]')
+  if (inlineCancelBtn) {
+    editingEntryId = null
+    renderTimeline()
+    return
   }
 })
 
@@ -1335,11 +1412,31 @@ document.getElementById('tl-container').addEventListener('click', e => {
 
 const tlContainer = document.getElementById('tl-container')
 
-// Double-click on a timeline entry → edit it in the entry page
+// Live word count + auto-grow for inline textarea
+tlContainer.addEventListener('input', e => {
+  if (e.target.id !== 'tl-inline-textarea') return
+  const ta = e.target
+  ta.style.height = 'auto'
+  ta.style.height = ta.scrollHeight + 'px'
+  const n   = countWords(ta.value)
+  const wcEl = document.getElementById('tl-inline-wc')
+  if (wcEl) wcEl.textContent = `${n} ${n === 1 ? 'word' : 'words'}`
+})
+
+// Cmd/Ctrl+Enter saves inline edit
+tlContainer.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && e.target.id === 'tl-inline-textarea') {
+    e.preventDefault()
+    const saveBtn = document.querySelector('[data-action="inline-save"]')
+    if (saveBtn) saveBtn.click()
+  }
+})
+
+// Double-click on a timeline entry → edit it inline
 tlContainer.addEventListener('dblclick', e => {
   if (e.target.closest('button')) return
   const entry = e.target.closest('.tl-entry')
-  if (entry) startEditEntry(entry.dataset.entryId)
+  if (entry) startInlineEdit(entry.dataset.entryId)
 })
 
 
