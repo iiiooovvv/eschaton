@@ -302,12 +302,6 @@ function renderEntryContext() {
 function renderContextEntry(entry, direction) {
   const pos      = formatPosition(entry.timelinePosition)
   const scene    = SCENE_LABELS[entry.sceneType] || entry.sceneType
-  const subjHtml = entry.subject
-    ? `<span class="ctx-subject">${escapeHtml(entry.subject)}</span>`
-    : ''
-  const figHtml  = entry.rhetoricalFigure
-    ? `<span class="ctx-figure">${escapeHtml(entry.rhetoricalFigure)}</span>`
-    : ''
   const preview  = entry.text.length > 220
     ? entry.text.slice(0, 220).trimEnd() + '…'
     : entry.text
@@ -318,7 +312,6 @@ function renderContextEntry(entry, direction) {
       <div class="ctx-meta">
         <span class="ctx-pos">${pos}</span>
         <span class="ctx-scene">${scene}</span>
-        ${subjHtml}${figHtml}
       </div>
       <p class="ctx-text">${escapeHtml(preview)}</p>
     </div>`
@@ -556,14 +549,6 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
     ? `${parentPosLabel}.${siblingIndex}`
     : String(Math.abs(entry.timelinePosition))
 
-  // Subject sits in the detail row below; scene + figure share the meta row with position
-  const detailsHtml = entry.subject
-    ? `<div class="tl-details"><span class="tl-detail tl-detail--subject">${escapeHtml(entry.subject)}</span></div>`
-    : ''
-
-  const figureHtml = entry.rhetoricalFigure
-    ? `<span class="tl-detail--figure">${escapeHtml(entry.rhetoricalFigure)}</span>`
-    : ''
 
   const collapseBtn = hasChildren
     ? `<button class="collapse-btn" draggable="false" data-action="collapse" data-entry-id="${entry.id}" aria-label="${collapsed ? 'Expand' : 'Collapse'} sub-thread">${collapsed ? '▶' : '▼'}</button>`
@@ -576,7 +561,6 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
         ${collapseBtn}
         <span class="tl-pos">${pos}</span>
         ${sceneContent ? `<span class="tl-scene">${sceneContent}</span>` : ''}
-        ${figureHtml}
         <div class="tl-meta-right">
           <span class="tl-wordcount">${wc}w</span>
           <button class="drill-btn" draggable="false" data-action="drill" data-entry-id="${entry.id}" aria-label="Drill into entry">drill</button>
@@ -587,7 +571,7 @@ function renderEntryWithChildren(entry, childrenOf, isFirst, isLast, parentPosLa
               ${isLast ? 'disabled' : ''} aria-label="Move later in story">↓</button>
           </div>
         </div>
-      </div>${detailsHtml}
+      </div>
       <p class="tl-text">${escapeHtml(entry.text)}</p>
     </div>`
 
