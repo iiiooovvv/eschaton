@@ -519,7 +519,9 @@ label.icon-btn { cursor: pointer; }
 .tl-footer-icons {
   display: flex;
   flex: 1;
+  align-items: center;
   justify-content: space-around;
+  padding: 0 0.25rem;
 }
 
 .tl-footer .icon-btn {
@@ -1443,20 +1445,47 @@ body.scene--obfuscation .tl-composer-textarea:focus { border-left-color: var(--r
 
 /* ─── New Entry Drag Chip ──────────────────────────── in tl-footer ─── */
 .new-entry-chip {
-  color: rgba(96, 104, 232, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex: 0 0 auto;
+  min-width: 96px;
+  padding: 0.625rem 1rem;
+  border: 1.5px dashed rgba(96, 104, 232, 0.45);
+  border-radius: 10px;
+  background: rgba(96, 104, 232, 0.06);
+  color: rgba(140, 148, 255, 0.85);
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
+  transition: color var(--t), border-color var(--t), background var(--t), transform var(--t), box-shadow var(--t);
+}
+
+.new-entry-chip-label {
+  font-family: var(--font);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: inherit;
+  pointer-events: none;
 }
 
 .new-entry-chip:hover {
-  color: var(--blue);
-  background: rgba(96, 104, 232, 0.08);
+  color: rgb(160, 166, 255);
+  border-color: rgba(96, 104, 232, 0.75);
+  background: rgba(96, 104, 232, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(96, 104, 232, 0.2);
 }
 
-.new-entry-chip:active { cursor: grabbing; }
-
-.new-entry-chip:active { cursor: grabbing; }
+.new-entry-chip:active {
+  cursor: grabbing;
+  transform: scale(0.96);
+  box-shadow: none;
+}
 
 /* ─── Footer ──────────────────────────────────────────────────────────────── */
 footer {
